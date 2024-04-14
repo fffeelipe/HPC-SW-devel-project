@@ -1,0 +1,70 @@
+@startuml TranssiApp component diagram
+
+
+
+
+node Transsiapp_public{
+package frontend <<React>>  { 
+    [login]
+    [mass_transit_metrics]
+    [app_based_transit_metrics]
+}
+}
+
+cloud external_providers{
+    [bikeme]
+    [ATM]
+    [mobike]
+    [blablacar]
+}
+
+node legacy_sensors {
+    [legacy_sensor]
+}
+
+node Transsiapp_internal{
+    [data_ingress] <<Golang>>
+
+    [transsiapp_core] <<java>>
+    database mobility_db <<ElasticSearch>>
+    note right of mobility_db 
+    distributed database
+    for higher 
+    computational power
+    end note
+
+    [event_streaming] <<Apache Kafka>>
+
+    database user_history <<SQL database>>
+
+    [auth0] -- authtenticate
+    database users_db <<SQL database>> 
+    database failures_db <<SQL database>> 
+
+    authtenticate - frontend
+    transsiapp_core - frontend
+
+    data_ingress --> event_streaming : publish
+    data_ingress - report_data: HTTPS
+    data_ingress -- report_failure: HTTPS
+    
+    report_data - external_providers
+    report_data - legacy_sensor
+    report_failure - legacy_sensor
+
+    event_streaming --> mobility_db
+    event_streaming --> failures_db
+
+    
+    users_db -- auth0
+    mobility_db -- transsiapp_core
+    user_history -- transsiapp_core
+
+    
+}
+
+
+
+
+
+@enduml
