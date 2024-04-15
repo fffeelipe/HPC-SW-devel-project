@@ -1,0 +1,20 @@
+@startuml store report sequence diagram
+
+actor admin
+entity transsiapp_frontend
+entity transsiapp_core
+database mobility_db
+database transsiapp_db
+
+admin --> transsiapp_frontend: setup report parametes
+transsiapp_frontend --> transsiapp_core: request report
+transsiapp_core --> mobility_db: collect aggregated data
+transsiapp_core <-- mobility_db: response
+transsiapp_frontend <-- transsiapp_core: report data response
+admin <-- transsiapp_frontend: show report visualization
+admin -->  transsiapp_frontend: request export report
+admin <--  transsiapp_frontend: export report
+transsiapp_frontend --> transsiapp_core: store report
+transsiapp_core --> transsiapp_db: store report
+
+@enduml
