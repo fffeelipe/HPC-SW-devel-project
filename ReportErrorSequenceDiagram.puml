@@ -1,0 +1,8 @@
+@startuml report sensor error sequence diagram
+
+sensor --> data_ingress: report an error
+data_ingress --> transsiapp_db: Kafka publish
+transsiapp_db <-- transsiapp_core: check for error reports
+transsiapp_core --> transsiapp_frontend: send sensor error notification
+
+@enduml

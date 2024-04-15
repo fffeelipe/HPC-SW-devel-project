@@ -4,11 +4,12 @@
 
 
 node Transsiapp_public{
-package frontend <<React>>  { 
-    [login]
-    [mass_transit_metrics]
-    [app_based_transit_metrics]
-}
+    package frontend <<React>>  {
+
+        [login]
+        [mass_transit_metrics]
+        [app_based_transit_metrics]
+    }
 }
 
 cloud external_providers{
@@ -27,19 +28,21 @@ node Transsiapp_internal{
 
     [transsiapp_core] <<java>>
     database mobility_db <<ElasticSearch>>
-    note right of mobility_db 
-    distributed database
-    for higher 
-    computational power
+    note right of mobility_db
+        distributed database
+        for higher
+        computational power
     end note
 
     [event_streaming] <<Apache Kafka>>
 
-    database user_history <<SQL database>>
+    database transsiapp_db <<SQL database>> {
+        folder user_history
+        folder sensor_failure
+    }
 
     [auth0] -- authtenticate
-    database users_db <<SQL database>> 
-    database failures_db <<SQL database>> 
+    database users_db <<SQL database>>
 
     authtenticate - frontend
     transsiapp_core - frontend
@@ -47,20 +50,20 @@ node Transsiapp_internal{
     data_ingress --> event_streaming : publish
     data_ingress - report_data: HTTPS
     data_ingress -- report_failure: HTTPS
-    
+
     report_data - external_providers
-    report_data - legacy_sensor
-    report_failure - legacy_sensor
+    report_data - legacy_sensors
+    report_failure - legacy_sensors
 
     event_streaming --> mobility_db
-    event_streaming --> failures_db
+    event_streaming --> transsiapp_db
 
-    
-    users_db -- auth0
+
+    users_db - auth0
     mobility_db -- transsiapp_core
-    user_history -- transsiapp_core
+    transsiapp_db -- transsiapp_core
 
-    
+
 }
 
 

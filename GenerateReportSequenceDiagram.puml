@@ -1,0 +1,20 @@
+@startuml generate report sequence diagram
+
+actor admin
+entity transsiapp_frontend
+entity auth_service
+entity transsiapp_core
+database mobility_db
+
+admin --> transsiapp_frontend: login
+transsiapp_frontend --> auth_service: verify credentials
+transsiapp_frontend <-- auth_service: login result
+admin --> transsiapp_frontend: setup report parametes
+transsiapp_frontend --> transsiapp_core: request report
+transsiapp_core --> mobility_db: collect aggregated data
+transsiapp_core <-- mobility_db: response
+transsiapp_frontend <-- transsiapp_core: report data response
+admin <-- transsiapp_frontend: show report visualization
+
+
+@enduml

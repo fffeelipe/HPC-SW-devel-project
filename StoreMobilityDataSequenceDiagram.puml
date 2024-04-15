@@ -1,0 +1,13 @@
+@startuml store mobility data
+
+entity sensor
+collections external_apps
+entity data_ingress
+database mobility_db
+
+sensor --> data_ingress: report mobility status
+external_apps --> data_ingress: report use and availability
+data_ingress --> mobility_db: kafka publish
+data_ingress --> external_apps: ok
+
+@enduml
