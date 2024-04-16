@@ -1,14 +1,17 @@
 @startuml TranssiApp component diagram
 
-
-
-
 node Transsiapp_public{
     package frontend <<React>>  {
 
-        [login]
-        [mass_transit_metrics]
-        [app_based_transit_metrics]
+        component login {
+            port " " as f_login
+        }
+        component mass_transit_metrics{
+            port " " as p1
+        }
+        component app_based_transit_metrics{
+            port " " as p3
+        }
     }
 }
 
@@ -17,57 +20,70 @@ cloud external_providers{
     [ATM]
     [mobike]
     [blablacar]
+    [Timetable_management_software]
+
+
 }
 
 node legacy_sensors {
-    [legacy_sensor]
+    component legacy_sensor {
+        port " " as legacy_port2
+    }
+    legacy_port2 -l-() publish_data
+    port " " as legacy_port
+    publish_data -- legacy_port
 }
 
-node Transsiapp_internal{
-    [data_ingress] <<Golang>>
+node transsiapp_internal{
+    port " " as p_internal_auth
+    port " " as p_internal_report
+    port " " as p_internal_store
+    port " " as p_internal_data
 
-    [transsiapp_core] <<java>>
-    database mobility_db <<ElasticSearch>>
-    note right of mobility_db
-        distributed database
-        for higher
-        computational power
-    end note
-
-    [event_streaming] <<Apache Kafka>>
-
-    database transsiapp_db <<SQL database>> {
-        folder user_history
-        folder sensor_failure
+    component authentication    {
+        port " " as p6
+    }
+    component transiapp_core{
+        port " " as p7
+        port " " as store_report_1
+        port " " as core_report
+    }
+    component data_ingress{
+        port " " as p8
+    }
+    component analytics_engine{
+        port " " as p9
     }
 
-    [auth0] -- authtenticate
-    database users_db <<SQL database>>
+    circle auth as u1
+    u1 -u- p_internal_auth
+    p6 -u- u1
 
-    authtenticate - frontend
-    transsiapp_core - frontend
+    circle generate_report as u2
+    u2 -- p_internal_report
+    p7 -u- u2
 
-    data_ingress --> event_streaming : publish
-    data_ingress - report_data: HTTPS
-    data_ingress -- report_failure: HTTPS
+    circle store_report as u3
+    u3 -- p_internal_store
+    store_report_1 -u- u3
 
-    report_data - external_providers
-    report_data - legacy_sensors
-    report_failure - legacy_sensors
+    circle receive_data as u4
+    u4 -- p_internal_data
+    u4 -- p8
 
-    event_streaming --> mobility_db
-    event_streaming --> transsiapp_db
-
-
-    users_db - auth0
-    mobility_db -- transsiapp_core
-    transsiapp_db -- transsiapp_core
-
+    p9 -r-() data_analysis
+    core_report -r-( data_analysis
 
 }
 
-
-
-
-
+p_internal_report -u-() generate_report
+p1 -d-( generate_report
+p3 -d-( generate_report
+f_login -d-( authenticate
+legacy_port -u-( receive_data
+external_providers --() receive_data
+p_internal_auth -u-() authenticate
+p_internal_store -u-() store_report
+p_internal_data -u-() receive_data
+Transsiapp_public --( store_report
 @enduml
