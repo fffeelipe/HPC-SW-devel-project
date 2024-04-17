@@ -1,9 +1,23 @@
 @startuml report sensor error sequence diagram
 
-sensor <--  transsiapp_db: healthchek call
-transsiapp_db <-- transsiapp_core: check for error reports
-transsiapp_core --> transsiapp_frontend: send sensor error notification
+sensor <- transsiapp_core: healthchek call
 
+alt healthchek ok
+    sensor -> transsiapp_core: 200
+
+else failure
+alt
+else healthchek response with details of failure
+    sensor -> transsiapp_core: report of failure
+    transsiapp_core -> transsiapp_db: store failure report
+    transsiapp_db -> transsiapp_core: ok
+else healthchek timeout
+    sensor --> transsiapp_core: timeout
+    transsiapp_core -> transsiapp_db: store generic failure report
+    transsiapp_db -> transsiapp_core: ok
+end
+transsiapp_core -> frontend: show notifications
+end
 
 
 

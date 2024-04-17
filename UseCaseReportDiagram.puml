@@ -1,0 +1,22 @@
+@startuml general use case
+"Urban area\nmanager" as admin
+
+usecase "generate report" <<abstract>>  as init_report
+usecase "generate ocupancy report" as ocu_report
+usecase "generate delay report" as delay_report
+usecase "generate usage report" as usage_report
+usecase "store report" as store_report
+usecase "visualize report" as vis_report
+
+
+
+admin -> init_report: setup report\nparameters
+
+ocu_report --|> init_report
+delay_report --|> init_report
+usage_report --|> init_report
+
+vis_report ..> init_report: <<extends>>
+store_report ..> vis_report: <<extends>>
+
+@enduml

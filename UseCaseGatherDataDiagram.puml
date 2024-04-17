@@ -1,0 +1,18 @@
+@startuml gather data use case
+cloud "external providers" as ex_pro {
+    "biking sharing"
+    "ride sharing\nservices"
+}
+"Occupancy\nrate sensors" as sensor
+
+usecase "gather information" as gather_data
+usecase "notify sensor failure" as fail_sensor
+
+ex_pro --> gather_data: provides data
+
+sensor --> gather_data
+sensor --> fail_sensor: notify sensor\n failure
+
+
+
+@enduml
